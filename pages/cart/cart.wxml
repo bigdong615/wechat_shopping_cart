@@ -1,0 +1,49 @@
+<view class="container">
+  <!-- 空购物车 -->
+  <view wx:if="{{cartItems.length === 0}}" class="empty-cart">
+    <image class="empty-icon" src="/images/empty-cart.png" mode="aspectFit" />
+    <text class="empty-text">购物车还是空的</text>
+    <view class="go-shopping" bindtap="goShopping">去逛逛</view>
+  </view>
+
+  <!-- 购物车列表 -->
+  <view wx:else class="cart-list">
+    <view class="cart-item" wx:for="{{cartItems}}" wx:key="key">
+      <view class="cart-item-check" data-key="{{item.key}}" bindtap="toggleCheck">
+        <view class="checkbox {{item.checked ? 'checked' : ''}}">
+          <text wx:if="{{item.checked}}">✓</text>
+        </view>
+      </view>
+      <image class="cart-item-image" src="{{item.image}}" mode="aspectFill" />
+      <view class="cart-item-info">
+        <view class="cart-item-name">{{item.name}}</view>
+        <view wx:if="{{item.specName}}" class="cart-item-spec">{{item.specName}}</view>
+        <view class="cart-item-bottom">
+          <view class="cart-item-price">¥{{item.priceText}}</view>
+          <view class="quantity-control">
+            <view class="qty-btn minus" data-key="{{item.key}}" bindtap="onMinus">−</view>
+            <view class="qty-value">{{item.quantity}}</view>
+            <view class="qty-btn plus" data-key="{{item.key}}" bindtap="onPlus">+</view>
+          </view>
+        </view>
+      </view>
+      <view class="cart-item-delete" data-key="{{item.key}}" bindtap="onDelete">删除</view>
+    </view>
+  </view>
+
+  <!-- 底部结算栏 -->
+  <view wx:if="{{cartItems.length > 0}}" class="settle-bar">
+    <view class="select-all" bindtap="toggleSelectAll">
+      <view class="checkbox {{allChecked ? 'checked' : ''}}">
+        <text wx:if="{{allChecked}}">✓</text>
+      </view>
+      <text>全选</text>
+    </view>
+    <view class="settle-info">
+      <view class="settle-total">合计: <text class="settle-price">¥{{totalPriceText}}</text></view>
+    </view>
+    <view class="settle-btn {{checkedCount > 0 ? 'active' : ''}}" bindtap="onSettle">
+      结算({{checkedCount}})
+    </view>
+  </view>
+</view>

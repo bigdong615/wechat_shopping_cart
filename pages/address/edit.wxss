@@ -1,0 +1,47 @@
+.container {
+  padding: 16rpx;
+}
+
+.form {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 8rpx 24rpx;
+}
+
+.form-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  width: 160rpx;
+  font-size: 28rpx;
+  color: #333;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.switch-item {
+  justify-content: space-between;
+}
+
+.save-btn {
+  margin-top: 40rpx;
+  padding: 24rpx;
+  background: #4A90D9;
+  color: #fff;
+  text-align: center;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+}
