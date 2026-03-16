@@ -91,19 +91,52 @@ Page({
     const category = categories.find(c => c.id === id)
     const firstChild = category && category.children && category.children[0]
 
+    if (!firstChild) return
+
+    // 找到该分类组下第一个有商品的子分类
+    const targetCategoryId = this._findFirstCategoryWithProducts(category.children)
+
     this.setData({
       activeCategoryGroup: id,
-      activeCategory: firstChild ? firstChild.id : null,
-      scrollIntoProduct: firstChild ? `cate-${firstChild.id}` : ''
+      activeCategory: firstChild.id
     })
+
+    // 滚动到对应商品区域
+    this._scrollToCategory(targetCategoryId || firstChild.id)
   },
 
   // 子分类点击
   onCategoryTap(e) {
     const id = e.currentTarget.dataset.id
     this.setData({
-      activeCategory: id,
-      scrollIntoProduct: `cate-${id}`
+      activeCategory: id
+    })
+
+    // 滚动到对应商品区域
+    this._scrollToCategory(id)
+  },
+
+  // 找到分类列表中第一个有商品的子分类ID
+  _findFirstCategoryWithProducts(children) {
+    if (!children || children.length === 0) return null
+    const productGroups = this.data.productGroups
+    for (let i = 0; i < children.length; i++) {
+      const group = productGroups.find(g => g.categoryId === children[i].id)
+      if (group && group.products.length > 0) {
+        return children[i].id
+      }
+    }
+    return null
+  },
+
+  // 滚动到指定分类的商品区域（解决scroll-into-view相同值不触发的问题）
+  _scrollToCategory(categoryId) {
+    const target = `cate-${categoryId}`
+    // 先清空再设置，确保即使值相同也能触发滚动
+    this.setData({ scrollIntoProduct: '' }, () => {
+      setTimeout(() => {
+        this.setData({ scrollIntoProduct: target })
+      }, 50)
     })
   },
 

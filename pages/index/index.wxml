@@ -31,7 +31,7 @@
     </scroll-view>
 
     <!-- 右侧商品列表 -->
-    <scroll-view class="product-list" scroll-y scroll-into-view="{{scrollIntoProduct}}" bindscroll="onProductScroll">
+    <scroll-view class="product-list" scroll-y scroll-into-view="{{scrollIntoProduct}}" scroll-with-animation="{{true}}" bindscroll="onProductScroll">
       <block wx:for="{{productGroups}}" wx:key="categoryId">
         <view id="cate-{{item.categoryId}}" class="product-group">
           <view class="product-group-title">{{item.categoryName}}</view>
