@@ -96,4 +96,4 @@ seafood-mall/
 - 图片目前使用占位符，实际使用时请替换为真实商品图片
 - 支付功能为模拟支付，实际接入需要后端支持和微信支付商户号
 - 支付宝支付在微信小程序中需通过H5页面跳转实现，当前为演示模式
-- 建议将 `project.config.json` 中的 `appid` 替换为自己的小程序 AppID
+- 建议将 `project.config.json` 中的 `appid` 替换为自己的小程序 AppID# wechat_shopping_cart
