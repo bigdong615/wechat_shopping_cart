@@ -8,6 +8,12 @@ Page({
   },
 
   onShow() {
+    // 检查是否从个人中心传来的tab切换
+    const app = getApp()
+    if (app.globalData.orderTab) {
+      this.setData({ activeTab: app.globalData.orderTab })
+      app.globalData.orderTab = null
+    }
     this.loadOrders()
   },
 

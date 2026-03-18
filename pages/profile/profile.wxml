@@ -1,15 +1,14 @@
 <view class="container">
-  <!-- 用户信息 -->
   <view class="user-card">
     <view class="avatar-wrap">
       <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill" />
     </view>
     <view class="user-info">
       <text class="nickname">{{userInfo.nickName || '点击登录'}}</text>
+      <text class="user-desc">欢迎来到海鲜商城</text>
     </view>
   </view>
 
-  <!-- 订单入口 -->
   <view class="section">
     <view class="section-header" bindtap="goAllOrders">
       <text class="section-title">我的订单</text>
@@ -17,21 +16,29 @@
     </view>
     <view class="order-shortcuts">
       <view class="shortcut" bindtap="goOrders" data-tab="paid">
-        <text class="shortcut-icon">📦</text>
+        <view class="shortcut-icon-wrap">
+          <text class="shortcut-icon">📦</text>
+          <view wx:if="{{orderCounts.paid > 0}}" class="shortcut-badge">{{orderCounts.paid}}</view>
+        </view>
         <text class="shortcut-text">待发货</text>
       </view>
       <view class="shortcut" bindtap="goOrders" data-tab="shipped">
-        <text class="shortcut-icon">🚚</text>
+        <view class="shortcut-icon-wrap">
+          <text class="shortcut-icon">🚚</text>
+          <view wx:if="{{orderCounts.shipped > 0}}" class="shortcut-badge">{{orderCounts.shipped}}</view>
+        </view>
         <text class="shortcut-text">待收货</text>
       </view>
       <view class="shortcut" bindtap="goOrders" data-tab="completed">
-        <text class="shortcut-icon">✅</text>
+        <view class="shortcut-icon-wrap">
+          <text class="shortcut-icon">✅</text>
+          <view wx:if="{{orderCounts.completed > 0}}" class="shortcut-badge">{{orderCounts.completed}}</view>
+        </view>
         <text class="shortcut-text">已完成</text>
       </view>
     </view>
   </view>
 
-  <!-- 功能列表 -->
   <view class="section">
     <view class="menu-item" bindtap="goAddress">
       <text class="menu-icon">📍</text>
@@ -41,25 +48,25 @@
     <view class="menu-item" bindtap="goCart">
       <text class="menu-icon">🛒</text>
       <text class="menu-text">购物车</text>
+      <view wx:if="{{cartCount > 0}}" class="menu-badge">{{cartCount}}</view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="menu-item" bindtap="showAbout">
+      <text class="menu-icon">ℹ️</text>
+      <text class="menu-text">关于我们</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="callService">
+      <text class="menu-icon">📞</text>
+      <text class="menu-text">联系客服</text>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="clearData">
       <text class="menu-icon">🗑️</text>
       <text class="menu-text">清除缓存</text>
-      <text class="menu-arrow">›</text>
-    </view>
-  </view>
-
-  <!-- 关于 -->
-  <view class="section">
-    <view class="menu-item">
-      <text class="menu-icon">ℹ️</text>
-      <text class="menu-text">关于我们</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item">
-      <text class="menu-icon">📞</text>
-      <text class="menu-text">联系客服</text>
       <text class="menu-arrow">›</text>
     </view>
   </view>

@@ -9,20 +9,17 @@
       <input class="input" type="number" maxlength="11" placeholder="请输入手机号" value="{{form.phone}}" data-field="phone" bindinput="onInput" />
     </view>
     <view class="form-item">
-      <text class="label">省份</text>
-      <input class="input" placeholder="请输入省份" value="{{form.province}}" data-field="province" bindinput="onInput" />
-    </view>
-    <view class="form-item">
-      <text class="label">城市</text>
-      <input class="input" placeholder="请输入城市" value="{{form.city}}" data-field="city" bindinput="onInput" />
-    </view>
-    <view class="form-item">
-      <text class="label">区县</text>
-      <input class="input" placeholder="请输入区县" value="{{form.district}}" data-field="district" bindinput="onInput" />
+      <text class="label">所在地区</text>
+      <picker mode="region" value="{{regionValue}}" bindchange="onRegionChange">
+        <view class="picker-text {{regionText ? '' : 'placeholder'}}">
+          {{regionText || '请选择省/市/区'}}
+        </view>
+      </picker>
+      <text class="form-arrow">›</text>
     </view>
     <view class="form-item">
       <text class="label">详细地址</text>
-      <input class="input" placeholder="请输入详细地址" value="{{form.detail}}" data-field="detail" bindinput="onInput" />
+      <input class="input" placeholder="街道、楼牌号等" value="{{form.detail}}" data-field="detail" bindinput="onInput" />
     </view>
     <view class="form-item switch-item">
       <text class="label">设为默认地址</text>
@@ -30,5 +27,5 @@
     </view>
   </view>
 
-  <view class="save-btn" bindtap="onSave">保存</view>
+  <view class="save-btn" bindtap="onSave">保存地址</view>
 </view>

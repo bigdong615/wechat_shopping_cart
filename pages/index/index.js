@@ -1,8 +1,9 @@
-const { categories, products } = require('../../utils/data')
+const { categories, products, banners } = require('../../utils/data')
 const util = require('../../utils/util')
 
 Page({
   data: {
+    banners: banners,
     categories: categories,
     activeCategoryGroup: 1,
     activeCategory: 11,
@@ -13,6 +14,7 @@ Page({
     selectedAddress: null,
     scrollIntoProduct: '',
     scrollIntoCategory: '',
+    showBanner: true,
     // 规格弹窗
     showSpecModal: false,
     specProduct: null,
@@ -41,7 +43,9 @@ Page({
   buildProductGroups(keyword = '') {
     let filtered = this.allProducts
     if (keyword) {
-      filtered = filtered.filter(p => p.name.includes(keyword))
+      filtered = filtered.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()) || 
+        (p.description && p.description.includes(keyword)) ||
+        (p.tags && p.tags.some(t => t.includes(keyword))))
     }
 
     // 按分类分组
@@ -57,6 +61,7 @@ Page({
       groupMap[p.categoryId].products.push({
         ...p,
         priceText: util.formatPrice(p.price),
+        originalPriceText: p.originalPrice ? util.formatPrice(p.originalPrice) : '',
         cartQuantity: util.getCartQuantity(p.id)
       })
     })
@@ -98,7 +103,8 @@ Page({
 
     this.setData({
       activeCategoryGroup: id,
-      activeCategory: firstChild.id
+      activeCategory: firstChild.id,
+      showBanner: false
     })
 
     // 滚动到对应商品区域
@@ -109,7 +115,8 @@ Page({
   onCategoryTap(e) {
     const id = e.currentTarget.dataset.id
     this.setData({
-      activeCategory: id
+      activeCategory: id,
+      showBanner: false
     })
 
     // 滚动到对应商品区域
@@ -129,10 +136,9 @@ Page({
     return null
   },
 
-  // 滚动到指定分类的商品区域（解决scroll-into-view相同值不触发的问题）
+  // 滚动到指定分类的商品区域
   _scrollToCategory(categoryId) {
     const target = `cate-${categoryId}`
-    // 先清空再设置，确保即使值相同也能触发滚动
     this.setData({ scrollIntoProduct: '' }, () => {
       setTimeout(() => {
         this.setData({ scrollIntoProduct: target })
@@ -143,11 +149,26 @@ Page({
   // 搜索输入
   onSearchInput(e) {
     this.setData({ searchKeyword: e.detail.value })
+    // 实时搜索
+    if (!e.detail.value) {
+      this.buildProductGroups()
+    }
   },
 
   // 搜索
   onSearch() {
     this.buildProductGroups(this.data.searchKeyword)
+  },
+
+  // 搜索确认（键盘确认键）
+  onSearchConfirm() {
+    this.buildProductGroups(this.data.searchKeyword)
+  },
+
+  // 清除搜索
+  onClearSearch() {
+    this.setData({ searchKeyword: '' })
+    this.buildProductGroups()
   },
 
   // 增加数量
@@ -158,6 +179,13 @@ Page({
 
     if (product.stock <= 0) {
       wx.showToast({ title: '库存不足', icon: 'none' })
+      return
+    }
+
+    // 检查购物车中已有数量
+    const currentQty = util.getCartQuantity(id)
+    if (currentQty >= product.stock) {
+      wx.showToast({ title: '已达库存上限', icon: 'none' })
       return
     }
 
@@ -191,6 +219,9 @@ Page({
   closeSpecModal() {
     this.setData({ showSpecModal: false })
   },
+
+  // 阻止冒泡
+  preventBubble() {},
 
   // 选择规格项
   onSpecSelect(e) {
@@ -245,7 +276,13 @@ Page({
 
   // 跳转到地址
   goToAddress() {
-    wx.navigateTo({ url: '/pages/address/address' })
+    wx.navigateTo({ url: '/pages/address/address?select=1' })
+  },
+
+  // 商品详情
+  goToDetail(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({ url: `/pages/productDetail/productDetail?id=${id}` })
   },
 
   // 结算
@@ -257,7 +294,12 @@ Page({
     wx.navigateTo({ url: '/pages/cart/cart' })
   },
 
-  onProductScroll() {
-    // 滚动时可以更新左侧分类高亮（简化处理）
+  onProductScroll(e) {
+    // 滚动超过banner高度时隐藏banner
+    if (e.detail.scrollTop > 10) {
+      if (this.data.showBanner) {
+        this.setData({ showBanner: false })
+      }
+    }
   }
 })

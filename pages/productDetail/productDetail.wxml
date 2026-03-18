@@ -1,0 +1,111 @@
+<view class="container" wx:if="{{product}}">
+  <!-- 商品图片 -->
+  <view class="product-image-wrap">
+    <image class="product-image" src="{{product.image}}" mode="aspectFill" />
+    <view wx:if="{{product.stock <= 0}}" class="soldout-mask">
+      <text>已售罄</text>
+    </view>
+  </view>
+
+  <!-- 商品信息 -->
+  <view class="product-info-card">
+    <view class="price-row">
+      <view class="price">¥{{product.priceText}}<text wx:if="{{product.unit}}" class="unit">/{{product.unit}}</text></view>
+      <view wx:if="{{product.originalPriceText}}" class="original-price">¥{{product.originalPriceText}}</view>
+      <view wx:if="{{product.originalPrice}}" class="discount-tag">优惠</view>
+    </view>
+    <view class="product-name">{{product.name}}</view>
+    <view wx:if="{{product.description}}" class="product-desc">{{product.description}}</view>
+
+    <!-- 标签 -->
+    <view wx:if="{{product.tags && product.tags.length > 0}}" class="tags-row">
+      <text wx:for="{{product.tags}}" wx:key="*this" class="tag">{{item}}</text>
+    </view>
+
+    <!-- 销售信息 -->
+    <view class="sales-info">
+      <text wx:if="{{product.buyers > 0}}">{{product.buyers}}人已购买</text>
+      <text wx:if="{{product.followers > 0}}" class="sales-sep">{{product.followers}}人关注</text>
+      <text class="stock-info">库存: {{product.stock > 0 ? product.stock : '暂无'}}</text>
+    </view>
+  </view>
+
+  <!-- 规格信息 -->
+  <view wx:if="{{product.hasSpecs}}" class="section" bindtap="onSelectSpec">
+    <view class="section-row">
+      <text class="section-label">规格</text>
+      <text class="section-value">共{{product.specs.length}}种规格可选</text>
+      <text class="section-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 服务保障 -->
+  <view class="section">
+    <view class="section-title">服务保障</view>
+    <view class="service-list">
+      <view class="service-item">
+        <text class="service-icon">🧊</text>
+        <text>冷链配送</text>
+      </view>
+      <view class="service-item">
+        <text class="service-icon">✅</text>
+        <text>品质保证</text>
+      </view>
+      <view class="service-item">
+        <text class="service-icon">🔄</text>
+        <text>坏单包赔</text>
+      </view>
+      <view class="service-item">
+        <text class="service-icon">⏰</text>
+        <text>极速发货</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="bar-cart" bindtap="goToCart">
+      <text class="bar-cart-icon">🛒</text>
+      <view wx:if="{{cartTotalCount > 0}}" class="bar-cart-badge">{{cartTotalCount}}</view>
+      <text class="bar-cart-text">购物车</text>
+    </view>
+    <view class="bar-actions">
+      <view wx:if="{{product.stock > 0}}" class="bar-btn add-cart" bindtap="addToCart">加入购物车</view>
+      <view wx:else class="bar-btn disabled">暂时缺货</view>
+    </view>
+  </view>
+
+  <!-- 规格弹窗 -->
+  <view wx:if="{{showSpecModal}}" class="spec-modal-mask" bindtap="closeSpecModal">
+    <view class="spec-modal" catchtap="preventBubble">
+      <view class="spec-modal-header">
+        <image class="spec-product-image" src="{{product.image}}" mode="aspectFill" />
+        <view class="spec-product-info">
+          <view class="spec-product-name">{{product.name}}</view>
+          <view class="spec-product-price">¥{{selectedSpecPrice}}</view>
+        </view>
+        <view class="spec-close" bindtap="closeSpecModal">×</view>
+      </view>
+      <view class="spec-list">
+        <view class="spec-label">规格</view>
+        <view class="spec-options">
+          <view wx:for="{{product.specs}}" wx:key="id"
+                class="spec-option {{selectedSpecId === item.id ? 'active' : ''}}"
+                data-spec="{{item}}"
+                bindtap="onSpecSelect">
+            {{item.name}}
+          </view>
+        </view>
+      </view>
+      <view class="spec-quantity-row">
+        <text>数量</text>
+        <view class="quantity-control">
+          <view class="qty-btn minus" bindtap="onSpecMinus">−</view>
+          <view class="qty-value">{{specQuantity}}</view>
+          <view class="qty-btn plus" bindtap="onSpecPlus">+</view>
+        </view>
+      </view>
+      <view class="spec-confirm-btn" bindtap="onSpecConfirm">加入购物车</view>
+    </view>
+  </view>
+</view>

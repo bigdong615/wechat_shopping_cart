@@ -3,7 +3,8 @@
   <view class="search-bar">
     <view class="search-input-wrap">
       <icon type="search" size="14" color="#999" />
-      <input class="search-input" placeholder="搜索" value="{{searchKeyword}}" bindinput="onSearchInput" />
+      <input class="search-input" placeholder="搜索海鲜、肉类..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" confirm-type="search" />
+      <view wx:if="{{searchKeyword}}" class="search-clear" bindtap="onClearSearch">×</view>
     </view>
     <view class="search-btn" bindtap="onSearch">搜索</view>
   </view>
@@ -32,19 +33,36 @@
 
     <!-- 右侧商品列表 -->
     <scroll-view class="product-list" scroll-y scroll-into-view="{{scrollIntoProduct}}" scroll-with-animation="{{true}}" bindscroll="onProductScroll">
+      <!-- 轮播banner -->
+      <view wx:if="{{showBanner && banners.length > 0}}" class="banner-wrap">
+        <swiper class="banner-swiper" indicator-dots autoplay circular interval="{{3000}}" indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff">
+          <swiper-item wx:for="{{banners}}" wx:key="id">
+            <image class="banner-image" src="{{item.image}}" mode="aspectFill" />
+            <view class="banner-title">{{item.title}}</view>
+          </swiper-item>
+        </swiper>
+      </view>
+
       <block wx:for="{{productGroups}}" wx:key="categoryId">
         <view id="cate-{{item.categoryId}}" class="product-group">
           <view class="product-group-title">{{item.categoryName}}</view>
           <view wx:for="{{item.products}}" wx:for-item="product" wx:key="id" class="product-card">
-            <image class="product-image" src="{{product.image}}" mode="aspectFill" />
+            <image class="product-image" src="{{product.image}}" mode="aspectFill" data-id="{{product.id}}" bindtap="goToDetail" />
             <view class="product-info">
-              <view class="product-name">{{product.name}}</view>
+              <view class="product-name" data-id="{{product.id}}" bindtap="goToDetail">{{product.name}}</view>
+              <!-- 标签 -->
+              <view wx:if="{{product.tags && product.tags.length > 0}}" class="product-tags">
+                <text wx:for="{{product.tags}}" wx:for-item="tag" wx:key="*this" class="product-tag">{{tag}}</text>
+              </view>
               <view class="product-meta">
                 <text wx:if="{{product.buyers > 0}}">{{product.buyers}}人已买</text>
-                <text class="meta-space" wx:if="{{product.buyers > 0 && product.followers > 0}}"></text>
+                <text class="meta-dot" wx:if="{{product.buyers > 0 && product.followers > 0}}">·</text>
                 <text wx:if="{{product.followers > 0}}">{{product.followers}}人关注</text>
               </view>
-              <view class="product-price">¥{{product.priceText}}</view>
+              <view class="product-price-row">
+                <view class="product-price">¥{{product.priceText}}<text wx:if="{{product.unit}}">/{{product.unit}}</text></view>
+                <view wx:if="{{product.originalPriceText}}" class="product-original-price">¥{{product.originalPriceText}}</view>
+              </view>
               <view class="product-actions">
                 <!-- 有规格的商品 -->
                 <view wx:if="{{product.hasSpecs}}" class="spec-btn" data-product="{{product}}" bindtap="onSelectSpec">
@@ -52,13 +70,13 @@
                 </view>
                 <!-- 已售罄 -->
                 <view wx:elif="{{product.stock <= 0}}" class="soldout-btn">
-                  被抢光了
+                  已售罄
                 </view>
                 <!-- 普通加减 -->
                 <view wx:else class="quantity-control">
-                  <view wx:if="{{product.cartQuantity > 0}}" class="qty-btn minus" data-id="{{product.id}}" bindtap="onMinus">−</view>
+                  <view wx:if="{{product.cartQuantity > 0}}" class="qty-btn minus" data-id="{{product.id}}" catchtap="onMinus">−</view>
                   <view wx:if="{{product.cartQuantity > 0}}" class="qty-value">{{product.cartQuantity}}</view>
-                  <view class="qty-btn plus" data-id="{{product.id}}" bindtap="onPlus">+</view>
+                  <view class="qty-btn plus" data-id="{{product.id}}" catchtap="onPlus">+</view>
                 </view>
               </view>
             </view>
@@ -66,7 +84,7 @@
         </view>
       </block>
       <!-- 底部占位 -->
-      <view style="height: 180rpx;"></view>
+      <view style="height: 200rpx;"></view>
     </scroll-view>
   </view>
 
@@ -74,26 +92,34 @@
   <view class="cart-bar">
     <!-- 地址提示 -->
     <view class="address-tip" bindtap="goToAddress">
+      <text class="address-icon">📍</text>
       <text wx:if="{{selectedAddress}}">{{selectedAddress.district}} {{selectedAddress.detail}}</text>
-      <text wx:else>请先选择地址</text>
+      <text wx:else class="no-address-text">请选择收货地址</text>
       <text class="arrow">›</text>
     </view>
     <view class="cart-bar-content">
       <view class="cart-icon-wrap" bindtap="goToCart">
         <image class="cart-icon" src="/images/cart.png" mode="aspectFit" />
-        <view wx:if="{{cartTotalCount > 0}}" class="cart-badge">{{cartTotalCount}}</view>
+        <view wx:if="{{cartTotalCount > 0}}" class="cart-badge">{{cartTotalCount > 99 ? '99+' : cartTotalCount}}</view>
       </view>
       <view class="cart-summary">
-        <view class="cart-total">共{{cartTotalCount}}件，¥{{cartTotalPriceText}}</view>
-        <view class="cart-delivery">预估配送费: 选地址 ›</view>
+        <view class="cart-total">
+          <text wx:if="{{cartTotalCount > 0}}">¥{{cartTotalPriceText}}</text>
+          <text wx:else class="cart-empty-text">购物车是空的</text>
+        </view>
+        <view wx:if="{{cartTotalCount > 0}}" class="cart-count">共{{cartTotalCount}}件商品</view>
+        <view wx:if="{{selectedAddress && cartTotalCount > 0}}" class="cart-delivery">预估配送费: ¥10.00</view>
       </view>
-      <view class="checkout-btn {{cartTotalCount > 0 ? 'active' : ''}}" bindtap="onCheckout">选好了</view>
+      <view class="checkout-btn {{cartTotalCount > 0 ? 'active' : ''}}" bindtap="onCheckout">
+        <text wx:if="{{cartTotalCount > 0}}">去结算</text>
+        <text wx:else>选好了</text>
+      </view>
     </view>
   </view>
 
   <!-- 规格选择弹窗 -->
   <view wx:if="{{showSpecModal}}" class="spec-modal-mask" bindtap="closeSpecModal">
-    <view class="spec-modal" catchtap="">
+    <view class="spec-modal" catchtap="preventBubble">
       <view class="spec-modal-header">
         <image class="spec-product-image" src="{{specProduct.image}}" mode="aspectFill" />
         <view class="spec-product-info">
@@ -121,7 +147,7 @@
           <view class="qty-btn plus" bindtap="onSpecPlus">+</view>
         </view>
       </view>
-      <view class="spec-confirm-btn" bindtap="onSpecConfirm">确定</view>
+      <view class="spec-confirm-btn" bindtap="onSpecConfirm">加入购物车</view>
     </view>
   </view>
 </view>
